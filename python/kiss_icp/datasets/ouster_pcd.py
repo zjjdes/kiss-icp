@@ -37,6 +37,7 @@ class OusterPCDDataset:
         if len(self.scan_files) == 0:
             raise ValueError(f"Tried to read point cloud files in {self.scans_dir} but none found")
         self.file_extension = self.scan_files[0].split(".")[-1]
+        self.timestamps = [float(f.split("/")[-1].split(".")[0]) / 1e9 for f in self.scan_files]
 
     def __len__(self):
         return len(self.scan_files)
@@ -49,3 +50,6 @@ class OusterPCDDataset:
         # cannot normalise existing values because there is a chunk missing in the point cloud
         timestamps = data[:, 4] / 1e9 * 10
         return xyz, timestamps
+
+    def get_frames_timestamps(self) -> list:
+        return self.timestamps

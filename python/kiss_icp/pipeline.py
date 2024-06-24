@@ -118,6 +118,21 @@ class OdometryPipeline:
 
         np.savetxt(fname=f"{filename}_kitti.txt", X=_to_kitti_format(poses))
 
+    # DZ: save as kitti format with timestamps
+    @staticmethod
+    def save_poses_modified_kitti_format(filename: str, poses: List[np.ndarray], timestamps: np.ndarray):
+        def _to_modified_kitti_format(poses: np.ndarray, timestamps: np.ndarray) -> np.ndarray:
+            data = []
+            with contextlib.suppress(ValueError):
+                for idx in range(len(poses)):
+                    pose = poses[idx]
+                    data.append(
+                        np.concatenate((np.array([float(timestamps[idx])]), pose[0], pose[1], pose[2]))
+                    )
+            return np.array(data).astype(np.float64)
+
+        np.savetxt(fname=f"{filename}_modified_kitti.txt", X=_to_modified_kitti_format(poses, timestamps))
+
     @staticmethod
     def save_poses_tum_format(filename, poses, timestamps):
         def _to_tum_format(poses, timestamps):
@@ -148,6 +163,7 @@ class OdometryPipeline:
     def _save_poses(self, filename: str, poses, timestamps):
         np.save(filename, poses)
         self.save_poses_kitti_format(filename, poses)
+        self.save_poses_modified_kitti_format(filename, poses, timestamps)
         self.save_poses_tum_format(filename, poses, timestamps)
 
     def _write_result_poses(self):

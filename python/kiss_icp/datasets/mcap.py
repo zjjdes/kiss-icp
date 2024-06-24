@@ -47,6 +47,7 @@ class McapDataloader:
         self.topic = self.check_topic(topic)
         self.n_scans = self._get_n_scans()
         self.msgs = read_ros2_messages(mcap_file, topics=topic)
+        self.timestamps = [] # DZ: save timestamps
         self.read_point_cloud = read_point_cloud
         self.use_global_visualizer = True
 
@@ -56,6 +57,10 @@ class McapDataloader:
 
     def __getitem__(self, idx):
         msg = next(self.msgs).ros_msg
+        # DZ: save timestamps
+        self.timestamps.append(
+            msg.header.stamp.sec + msg.header.stamp.nanosec / 1e9
+        )
         return self.read_point_cloud(msg)
 
     def __len__(self):
@@ -109,3 +114,6 @@ class McapDataloader:
             print("[ERROR] Your dataset does not contain any sensor_msgs/msg/PointCloud2 topic")
         if len(point_cloud_topics) == 1:
             return point_cloud_topics[0]
+        
+    def get_frames_timestamps(self) -> list:
+        return self.timestamps

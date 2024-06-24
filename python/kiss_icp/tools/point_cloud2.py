@@ -82,8 +82,12 @@ def read_point_cloud(msg: PointCloud2) -> Tuple[np.ndarray, np.ndarray]:
 
     if t_field:
         timestamps = points_structured[t_field].astype(np.float64)
-        min_timestamp = np.min(timestamps)
-        max_timestamp = np.max(timestamps)
+        # DZ: harcoded point-wise timestamp range to [0, .1] s for 10 Hz because
+        # we have a missing chunk in the data
+        # min_timestamp = np.min(timestamps)
+        # max_timestamp = np.max(timestamps)
+        min_timestamp = .0
+        max_timestamp = 1e8
         timestamps = (timestamps - min_timestamp) / (max_timestamp - min_timestamp)
     else:
         timestamps = np.ones(points.shape[0])
